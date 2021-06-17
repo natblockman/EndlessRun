@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public float laneDistance = 4;//the distance betweent two lanes
     public float JumpForce=10;
     public float Gravity = -20;
+    public Transform targetPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +27,7 @@ public class PlayerController : MonoBehaviour
         if (controller.isGrounded)
         {
            
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow)||SwipeManager.swipeUp)
             {
                 Jump();
             }
@@ -39,13 +40,13 @@ public class PlayerController : MonoBehaviour
        
 
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(KeyCode.RightArrow)||SwipeManager.swipeRight)
         {
             desiredLine++;
             if (desiredLine == 3)
                 desiredLine = 2;
         }
-        if(Input.GetKeyDown(KeyCode.LeftArrow))
+        if(Input.GetKeyDown(KeyCode.LeftArrow)||SwipeManager.swipeLeft)
         {
             desiredLine--;
             if (desiredLine == -1)
@@ -62,8 +63,17 @@ public class PlayerController : MonoBehaviour
             targetPosition += Vector3.right * laneDistance;
         }
 
-        // transform.position = Vector3.Lerp(transform.position,targetPosition,80*Time.deltaTime);
-        transform.position = targetPosition;
+        // transform.position = Vector3.Lerp(transform.position,targetPosition,70*Time.deltaTime);
+        if (transform.position == targetPosition) return;
+        Vector3 diff = targetPosition - transform.position;
+        Vector3 moveDir = diff.normalized * 25 * Time.deltaTime;
+        if (moveDir.sqrMagnitude < diff.sqrMagnitude)
+        {
+            controller.Move(moveDir);
+        }
+        else
+            controller.Move(diff);
+        
     }
     private void FixedUpdate()
     {
@@ -72,5 +82,12 @@ public class PlayerController : MonoBehaviour
     private void Jump()
     {
         direction.y = JumpForce;
+    }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.transform.tag == "Obstacle")
+        {
+            PlayerManager.gameOver = true;
+        }
     }
 }
