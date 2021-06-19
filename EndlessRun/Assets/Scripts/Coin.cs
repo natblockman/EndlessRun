@@ -19,8 +19,9 @@ public class Coin : MonoBehaviour
     {
         if (other.tag == "Player")
         {
+            FindObjectOfType<AudioManager>().PlaySound("PickUpCoin");
             PlayerManager.numberOfCoins += 1;
-            Debug.Log(PlayerManager.numberOfCoins);
+          //  Debug.Log(PlayerManager.numberOfCoins);
             Destroy(gameObject);
         }
     }
